@@ -1,0 +1,18 @@
+# Authors: Christian Reitwiessner
+[package]
+name = "patrizier"
+version = "0.1.0"
+edition = "2024"
+authors = ["Christian Reitwiessner"]
+description = "Portable reconstruction of the supplied 1992 German Amiga Patrizier release"
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+miniz_oxide = "0.8"
+sha2 = "0.10"
+
+[profile.release]
+lto = true
+opt-level = "s"

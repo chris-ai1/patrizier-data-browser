@@ -1,0 +1,67 @@
+<!doctype html>
+<!-- Authors: Christian Reitwiessner -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; worker-src 'self'; style-src 'self'">
+  <meta name="description" content="Browse the original Amiga Patrizier images, music and data entirely in your browser. Supply your own archive; nothing is uploaded.">
+  <title>Patrizier · Archive Explorer</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="brand"><span class="brand-mark" aria-hidden="true">P</span><div><h1>Patrizier <span>Archive Explorer</span></h1><p>AMIGA · 1992 · THREE DISKS</p></div></div>
+  <label class="upload-button" for="archive">Open archive <span aria-hidden="true">↗</span></label>
+  <input id="archive" type="file" accept=".zip,application/zip" disabled class="file-input">
+</header>
+<div id="notice" role="status" aria-live="polite">Preparing the local decoder…</div>
+<div class="workspace">
+  <aside class="library" aria-label="Archive files">
+    <div class="library-heading"><h2>THE COLLECTION</h2><span id="count">0 files</span></div>
+    <label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find a file…" aria-label="Search files" disabled></label>
+    <div id="filters" class="filters" aria-label="File category">
+      <button data-category="all" aria-pressed="true">All</button><button data-category="images" aria-pressed="false">Images</button><button data-category="audio" aria-pressed="false">Audio</button><button data-category="data" aria-pressed="false">Data</button>
+    </div>
+    <div id="files" class="file-list"><div class="library-empty">Your files will appear here.</div></div>
+    <div class="privacy"><span aria-hidden="true">◉</span> Your archive stays on this device.</div>
+  </aside>
+  <main id="main">
+    <section id="welcome" class="welcome">
+      <div class="disk-art" aria-hidden="true"><div class="disk-label">DER PATRIZIER<br><small>AMIGA · PA1 / PA2 / PA3</small></div><div class="disk-shutter"></div></div>
+      <p class="eyebrow">INSIDE THE ORIGINAL GAME</p>
+      <h2>A small archive.<br>A whole Hanseatic world.</h2>
+      <p>Explore the original artwork, listen to the music, and inspect the files behind <em>Der Patrizier</em>.</p>
+      <label class="primary-button" for="archive">Choose patrizier.zip</label>
+      <p class="subtle">Use the German three-disk archive from <a href="https://www.ppa.pl/rodzynki/der-patrizer-the-patrician.html" target="_blank" rel="noreferrer">PPA</a>. Images and audio are decoded locally. No account or upload.</p>
+    </section>
+    <section id="inspector" hidden>
+      <div class="file-heading"><div><p id="file-path" class="eyebrow"></p><h2 id="file-name"></h2></div><button id="download-file" class="secondary">Download original</button></div>
+      <div class="file-summary"><span id="file-kind"></span><span id="file-size"></span><span id="file-volume"></span></div>
+      <div class="view-tabs" role="tablist" aria-label="File view"><button id="tab-preview" role="tab" aria-selected="true" aria-controls="panel-preview">Preview</button><button id="tab-hex" role="tab" aria-selected="false" aria-controls="panel-hex">Hex</button><button id="tab-text" role="tab" aria-selected="false" aria-controls="panel-text">Strings</button></div>
+      <section id="panel-preview" role="tabpanel" aria-labelledby="tab-preview">
+        <div id="image-panel" hidden>
+          <div class="toolbar"><label id="chunk-label" hidden>Stream <select id="chunk"></select></label><label>Scale <select id="scale"><option value="fit">Fit</option><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option></select></label><button id="save-png" class="secondary">Save PNG</button><span id="image-info"></span></div>
+          <div class="image-stage"><canvas id="image" width="320" height="200" aria-label="Decoded Amiga image"></canvas></div>
+          <details id="geometry"><summary>Bitmap interpretation</summary><p>Full screens use their original palette. Fragments and sprite sheets use the selected geometry and palette; their in-game arrangement is not inferred.</p><div class="geometry-controls"><label>Width <input id="width" type="number" min="16" max="2048" step="16" value="320"></label><label>Height <input id="height" type="number" min="1" max="2048" value="200"></label><label>Bitplanes <select id="depth"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option></select></label><label>Byte offset <input id="offset" type="number" min="0" value="0"></label><label>Palette <select id="palette"></select></label><button id="apply-geometry" class="secondary">Apply</button></div></details>
+          <p id="image-note" class="subtle"></p>
+        </div>
+        <div id="music-panel" hidden>
+          <div class="music-cover" aria-hidden="true"><div class="record"></div><p>THE SOUND OF<br>THE HANSE</p></div>
+          <p class="eyebrow">TFMX · ORIGINAL MUSIC</p><h3 id="music-title"></h3><p id="music-info">Music data and its matching sample bank are played together.</p>
+          <div class="audio-controls"><button id="play" class="primary-button">Play</button><button id="pause" class="secondary" disabled>Pause</button><button id="stop" class="secondary" disabled>Stop</button><label>Track <select id="subsong" disabled><option value="0">1</option></select></label><label>Volume <input id="volume" type="range" min="0" max="1" step="0.01" value="0.65"></label></div>
+          <p id="audio-status" role="status" aria-live="polite">Ready to play.</p><progress id="progress" max="1" value="0" aria-label="Music playback progress"></progress>
+        </div>
+        <div id="sample-panel" hidden><h3>Sample bank</h3><p>Raw signed 8-bit mono PCM. A bank contains several instruments; the playback rate below is an inspection setting.</p><label>Sample rate <input id="sample-rate" type="number" min="3000" max="48000" value="8363"></label><button id="sample-wav" class="secondary">Preview as WAV</button><audio id="sample-player" controls></audio><canvas id="waveform" width="960" height="160" aria-label="Sample bank waveform"></canvas><p class="subtle">Select the matching mdat file to play the complete music.</p></div>
+        <div id="data-panel" hidden><div class="data-icon" aria-hidden="true">{ }</div><h3 id="data-title">Binary resource</h3><p id="data-description">Use the Hex and Strings views to inspect this file, or download a local copy.</p><pre id="data-metadata"></pre></div>
+      </section>
+      <section id="panel-hex" role="tabpanel" aria-labelledby="tab-hex" hidden><div class="toolbar"><label><input id="hex-decoded" type="checkbox"> Decoded FDL stream</label><button id="hex-prev" class="secondary">←</button><button id="hex-next" class="secondary">→</button><span id="hex-page"></span><button id="download-decoded" class="secondary" hidden>Download decoded</button></div><pre id="hex" tabindex="0"></pre></section>
+      <section id="panel-text" role="tabpanel" aria-labelledby="tab-text" hidden><p class="subtle">Printable byte sequences of at least four characters, with hexadecimal offsets. Text is shown without translating the original character substitutions.</p><pre id="strings" tabindex="0"></pre></section>
+      <details class="file-details"><summary>File identity</summary><dl><dt>SHA-256</dt><dd id="hash"></dd></dl></details>
+    </section>
+  </main>
+</div>
+<footer><span>A look inside the 1992 Amiga original.</span><a href="https://github.com/chris-ai1/patrizier-data-browser" target="_blank" rel="noreferrer">Source & credits ↗</a><a href="./THIRD_PARTY.txt">Audio decoder credits</a></footer>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# Authors: Christian Reitwiessner
+/engine/target/
+/dist/
+/node_modules/
+/test-results/
+*.zip
+*.adf

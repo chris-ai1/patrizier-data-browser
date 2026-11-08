@@ -1,0 +1,5 @@
+{
+  "repository": "https://github.com/no42-org/CoolModFiles",
+  "commit": "37c7a44937462e494f8d5f75b290ff52d8972458",
+  "note": "Audio decoder, worklet, build glue and corresponding source; original authorship preserved."
+}
